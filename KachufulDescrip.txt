@@ -1,0 +1,18 @@
+I’ve created my own version of the Kachuful game with customized rules. A maximum of 8 players can participate using a single deck, with a total of 10 rounds.
+
+The game starts with each player receiving 1 card in the first round, 2 cards in the second round, and so on, until players receive 10 cards in the final round. It’s a turn-based game, played in a clockwise order, beginning with the game creator (admin).
+
+Basic Rules:
+Bidding Phase: At the start of each round, players bid one by one. This happens at the beginning of every round.
+
+Card-Throwing Phase: After bidding, the player who bid first starts the card-throwing phase, and play continues clockwise. Players can only play one card per turn.
+
+For example, in the second round, players have 2 cards, so there will be 2 turns (or hands) during the card-throwing phase. The player who bid first plays a card, followed by the others, until all cards are played.
+Hand Winners: After each hand, a winner is declared, and the winner of the previous hand starts the next hand within the same round.
+
+In the second round, this process repeats for both turns, and in subsequent rounds, for 3 cards, 4 cards, and so on.
+Round Progression: After each round, the next round begins with the player next in line (clockwise) from the one who started the previous round.
+
+Scoring: At the end of each round, scores for that round are displayed for all players.
+
+Overall, the game runs smoothly!

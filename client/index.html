@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Added viewport-fit=cover to utilize full screen including safe areas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Kachuful</title>
+    <link rel="icon" href="images/KACHUFUL_ICON.ico" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA and theme settings -->
+    <meta name="mobile-web-app-capable" content="yes"> 
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1d">
+</head>
+<body>
+    <div class="container">
+        <!-- Game Title -->
+        <h1>Kachuful</h1>
+
+        <!-- First Form Row: Name input and Create Room button -->
+        <div class="form-row">
+            <div id="nameBox" class="input-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" />
+            </div>
+            <div class="button-group">
+                <button id="createRoomButton">Create Room</button>
+            </div>
+        </div>
+
+        <!-- Second Form Row: Room Code input and Join Room button -->
+        <div class="form-row">
+            <div class="input-group">
+                <label for="roomCode" id="roomCodeLabel">Room Code:</label>
+                <input type="text" id="roomCode" />
+            </div>
+            <div class="button-group">
+                <button id="joinRoomButton">Join Room</button>
+            </div>
+        </div>
+
+        <!-- Player List -->
+        <ul id="playerList" style="display: none;"></ul>
+
+        <!-- Start Game Button -->
+        <div class="buttons">
+            <button id="startGameButton" style="display: none;">Start Game</button>
+        </div>
+
+        <div id="waitingMessage" style="display: none;">
+            Waiting for the admin to start the game...
+        </div>
+
+        <!-- Bidding Modal (Initially hidden) -->
+        <div id="biddingModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>How many hands do you expect this round?</h2>
+                <div id="modalBidButtons"></div>
+            </div>
+        </div>
+
+        <!-- Bids Display -->
+        <div id="bidsDisplay" class="bids-display" style="display: none;">
+            <!-- Player bids will be dynamically added here -->
+        </div>
+
+        <!-- Current Turn Display -->
+        <div id="turnDisplay" class="turn-display">
+            <div id="turnInfo">Turn Info</div>
+        </div>
+
+        <!-- Player Positions Container -->
+        <div id="playerPositionsContainer">
+            <!-- Player positions will be dynamically added here -->
+        </div>
+
+        <!-- Thrown Cards Area -->
+        <div id="thrownCardsArea" class="thrown-cards-area">
+            <!-- Thrown cards will be dynamically added here -->
+        </div>
+
+        <!-- Local Player Cards Display -->
+        <div id="localPlayerCardsContainer">
+            <div id="localPlayerCards">
+                <!-- Local player cards will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Round Info and Trump Suit Container -->
+        <div id="currentRoundInfo" class="current-round-info" style="display: none;">
+            <span id="currentRound">1</span>
+            <span id="trumpSuit"><img src="suits/spade.png" alt="SPADE" style="width: 20px; height: 20px; padding-top: 3px;"></span>
+            <span id="roomCodeDisplay" style="cursor: pointer;">ABCD</span>
+        </div>
+
+        <!-- Round Stats Modal (Hidden initially) -->
+        <div id="roundStatsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Round Statistics</h2>
+                <div id="roundStatsContent">
+                    <!-- Round stats will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Results Container -->
+        <div id="resultsContainer" class="game-results-container" style="display: none;">
+            <!-- Game results will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Adding to Home Screen Prompt -->
+    <div id="addToHomeScreenPrompt" class="add-to-home-screen">
+        <p>For the best experience, add this app to your home screen:</p>
+        <p>Tap <img src="images/share-icon.png" alt="Share Icon"> and then "Add to Home Screen"</p>
+        <button onclick="Game.hideAddToHomeScreenPrompt()">Close</button>
+    </div>
+
+    <!-- Including Socket.IO and Script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Include the Socket.IO client library if you're using Socket.IO -->
+    <script src="script.js"></script>
+    <!-- Include canvas-confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1/dist/confetti.browser.min.js"></script>
+</body>
+</html>

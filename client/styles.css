@@ -1,0 +1,733 @@
+/* Base Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  color: #f1f1f1;
+  overflow: hidden; /* Prevent scrolling */
+  background: url('/images/KACHUFUL_HOMEPAGE.jpg') no-repeat center center / cover;
+  position: relative;
+}
+
+/* Apply box-sizing globally */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body::before {
+  content: '';
+  position: fixed; /* Ensure overlay covers the entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
+  z-index: 1; /* Place the overlay below the game elements */
+  pointer-events: none; /* Allow interactions with elements beneath the overlay */
+}
+
+/* After the game starts */
+body.game-started {
+  background: none; /* Remove the initial background image */
+}
+
+.container {
+  width: 100%;
+  height: 100vh; /* Changed from min-height to height */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden; /* Prevent overflow */
+  position: relative; /* Ensure the container is above the overlay */
+  z-index: 2; /* Place the container above the overlay */
+  padding: 0;
+  margin: 0;
+}
+
+/* Form Elements */
+.input-group, .buttons {
+  display: block;
+}
+
+#playerList, #thrownCardsArea, #localPlayerCardsContainer, #turnDisplay, #currentRoundInfo, h1 {
+  display: none; /* Hide initially */
+}
+
+/* Adjust the form itself */
+.input-group {
+  margin: 15px 0;
+  width: auto; /* Adjusted to allow flexbox to manage width */
+  position: relative;
+}
+
+.input-group label {
+  font-size: 1em;
+  color: #e0aaff;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.input-group input {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  margin-top: 5px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e0aaff;
+  box-shadow: 0 4px 10px rgba(224, 170, 255, 0.3);
+  transition: all 0.3s ease;
+  font-size: 1em;
+  letter-spacing: 0.5px;
+}
+
+.input-group input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(199, 125, 255, 0.5);
+}
+
+/* New CSS for the form-row */
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 15px 0;
+}
+
+/* Ensure the input-group takes up available space */
+.form-row .input-group {
+  flex: 1;
+  margin-right: 10px; /* Optional: Adjust spacing between input and button */
+}
+
+/* Adjust button-group to fit the button */
+.form-row .button-group {
+  flex-shrink: 0; /* Prevent the button from shrinking */
+}
+
+/* Adjust input to fill the available width */
+.input-group input {
+  width: 100%;
+}
+
+/* Adjust button styles */
+.buttons button,
+.button-group button {
+  background-color: #6a0dad;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 1em; /* Button size */
+  font-weight: bold;
+  width: 150px; /* Button width */
+  box-shadow: 0 6px 15px rgba(106, 13, 173, 0.3);
+  margin-top: 30px;
+}
+
+.buttons button:hover,
+.button-group button:hover {
+  background-color: #9b30ff;
+  box-shadow: 0 8px 20px rgba(155, 48, 255, 0.5);
+}
+
+.buttons button:active,
+.button-group button:active {
+  background-color: #4b0082;
+  box-shadow: 0 4px 10px rgba(75, 0, 130, 0.5);
+}
+
+.buttons button:disabled,
+.button-group button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  color: #999;
+  box-shadow: none;
+}
+
+/* Player List */
+#playerList {
+  list-style-type: none;
+  padding: 0;
+  text-align: center;
+}
+
+#playerList li {
+  counter-increment: player-counter;
+  position: relative;
+  margin-bottom: 8px;
+  background-color: #444;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+#playerList li:before {
+  content: counter(player-counter);
+  color: #e0aaff;
+  display: inline-block;
+  width: 1em;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* Modals */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  padding-top: env(safe-area-inset-top); /* Adjust for safe area */
+  padding-bottom: env(safe-area-inset-bottom); /* Adjust for safe area */
+  background-color: rgba(0, 0, 0, 0.8);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #444;
+  border: 1px solid #e0aaff;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  padding: 20px;
+  color: #fff;
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 80vh; /* Limit height to 80% of viewport */
+}
+
+.modalBidButton {
+  background-color: #e0aaff;
+  color: #1a1a1d;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 5px;
+}
+
+.modalBidButton:hover {
+  background-color: #c77dff;
+}
+
+.close {
+  color: #e0aaff;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #c77dff;
+  cursor: pointer;
+}
+
+#biddingModal .close {
+  display: none;
+}
+
+.game-started {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Player Positions Container */
+#playerPositionsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* Player Profile with Neutral Default Background */
+.playerPosition {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  clip-path: polygon(
+    30% 0%, 70% 0%, 
+    100% 30%, 100% 70%, 
+    70% 100%, 30% 100%, 
+    0% 70%, 0% 30%
+  );
+  background-color: #7d7d7d; /* Neutral muted gray */
+  color: #f8f9fa; /* Light text for readability */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Connection Status Ring */
+.playerPosition::before {
+  content: "";
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  clip-path: inherit;
+  border: 3px solid transparent;
+  z-index: 0;
+}
+
+.playerPosition.connected::before {
+  border-color: #28a745; /* Green for connected */
+}
+
+.playerPosition.disconnected::before {
+  border-color: #e74c3c; /* Red for disconnected */
+}
+
+/* Keyframes for Modern Yellow-based Flashing (Guessing) */
+@keyframes pulseYellow {
+  0%   { background-color: #f6d365; }  /* Muted yellow */
+  25%  { background-color: #fda085; }  /* Soft orange */
+  50%  { background-color: #ffd700; }  /* Vibrant gold */
+  75%  { background-color: #ffac41; }  /* Neon orange */
+  100% { background-color: #f6d365; }  /* Back to muted yellow */
+}
+
+/* Keyframes for Modern Green-based Flashing (Playing) */
+@keyframes pulseGreen {
+  0%   { background-color: #42e695; }  /* Light mint green */
+  25%  { background-color: #3bb78f; }  /* Medium sea green */
+  50%  { background-color: #00c9a7; }  /* Teal green */
+  75%  { background-color: #0ba360; }  /* Vibrant emerald green */
+  100% { background-color: #42e695; }  /* Back to light mint green */
+}
+
+/* Applying the animations to guessing and playing states */
+.playerPosition.guessing {
+  animation: pulseYellow 2s infinite ease-in-out;
+  color: #212121; /* Dark text for readability on light backgrounds */
+}
+
+.playerPosition.playing {
+  animation: pulseGreen 2s infinite ease-in-out;
+  color: #ffffff; /* White text for readability on green backgrounds */
+}
+
+/* Text Styling */
+
+/* Player Name */
+.playerName {
+  font-size: 1.2em;
+  margin-top: 0px;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); /* Slight shadow for better clarity */
+  z-index: 1;
+  color: #212121; /* Dark color for better readability on default and yellow backgrounds */
+}
+
+/* Player Score */
+.playerScore {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 0px;
+  color: #004d40; /* Dark teal for contrast against light backgrounds */
+  z-index: 1;
+}
+
+/* Player Stats */
+.playerStats {
+  font-size: 0.9em;
+  margin-top: 3px;
+  margin-bottom: 7px;
+  color: #263238; /* Dark slate color for maximum readability */
+  z-index: 1;
+  font-weight: 800;
+}
+
+/* Improved Player Status Badge */
+.playerPosition.guessing::after,
+.playerPosition.playing::after,
+.playerPosition.turnNotification::after {
+  content: attr(data-status);
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #a08533; /* Yellow for status badge */
+  color: #212529; /* Dark text for better readability */
+  padding: 3px 8px;
+  border-radius: 50%;
+  font-size: 0.8em;
+  font-weight: bold;
+  z-index: 2;
+}
+
+.playerPosition.guessing::after {
+  background-color: #ffeb3b; /* Softer yellow for guessing */
+  color: #212529; /* Darker text for readability */
+}
+
+.playerPosition.playing::after {
+  background-color: #31d907; /* Green for playing */
+  color: #ffffff; /* White text for better contrast */
+}
+
+.playerPosition.turnNotification::after {
+  background-color: #28a745; /* Green for "Your Turn!" */
+  color: #ffffff; /* White text for contrast */
+}
+
+/* Player Cards */
+#localPlayerCardsContainer {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#localPlayerCards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Relative to the container */
+  width: 100%;
+  overflow: visible;
+  transform: none; /* Reset any transforms */
+}
+
+#localPlayerCards .player-card {
+  position: relative;
+  flex-shrink: 0;
+  /* Width and height will be set dynamically in JavaScript */
+  /* Margins and overlaps are handled in JavaScript */
+  transform: perspective(800px) rotateY(20deg); /* 3D effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s, margin 0.3s;
+  z-index: 1;
+}
+
+#localPlayerCards .player-card:hover {
+  transform: scale(1.1) perspective(800px) rotateY(20deg); /* Slightly larger on hover */
+  z-index: 10; /* Ensure the hovered card is on top */
+}
+
+/* First card adjustment */
+#localPlayerCards .player-card:first-child {
+  margin-left: 0; /* No overlap for the first card */
+}
+
+/* Highlight selected card effect */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(224, 170, 255, 0.2); }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(224, 170, 255, 0.5); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(224, 170, 255, 0.2); }
+}
+
+.selectable {
+  animation: pulse 1s infinite;
+  cursor: pointer;
+}
+
+/* Thrown Cards Area */
+.thrown-cards-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+  height: 140px; /* Adjust height as needed */
+  flex-direction: row;
+  z-index: 3;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Thrown card container */
+.thrown-card-container {
+  position: relative;
+  width: 100px; /* Adjust as needed */
+  height: 140px; /* Adjust as needed */
+  margin: 1px;
+  display: inline-block;
+  animation: none;
+}
+
+/* Image styling for the card */
+.thrown-card-container .thrown-card-image {
+  width: 100%; /* Make sure the image fills the container */
+  height: 100%;
+  display: block;
+}
+
+/* Watermark styling */
+.card-watermark {
+  position: absolute;
+  top: 50%; /* Center vertically */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center using transform */
+  font-size: 1.2em; /* Increase the font size */
+  color: rgba(255, 255, 255, 0.7); /* Increase opacity for better visibility */
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none; /* Ensure the watermark doesn't interfere with interactions */
+  white-space: nowrap; /* Prevent text wrapping */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
+}
+
+/* Spinning animation for the thrown card */
+@keyframes spinAndMove {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(360deg) scale(1); /* One full spin and reach the final position */
+  }
+}
+
+/* Apply the animation when the card is thrown */
+.thrown-card-spinning {
+  animation: spinAndMove 1.5s ease-in-out forwards; /* Slower animation and only one spin */
+}
+
+/* Turn display */
+.turn-display {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 0px); /* Adjust for safe area */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #82b0d6;
+  color: #1a1a1d;
+  padding: 10px;
+  font-weight: bold;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: calc(100% - env(safe-area-inset-left) - env(safe-area-inset-right)); /* Adjust width */
+  max-width: 600px;
+  border-radius: 0 0 10px 10px;
+  display: none; /* Hide initially */
+  justify-content: left;
+}
+
+.turn-display.active {
+  display: flex; /* Show when active */
+}
+
+.turn-display #turnInfo {
+  flex: 1;
+  text-align: left;
+}
+
+/* Base styling for current round info */
+.current-round-info {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 10px); /* Adjust for safe area */
+  right: calc(env(safe-area-inset-right) + 10px); /* Adjust for safe area */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  visibility: visible;
+  opacity: 1;
+  z-index: 1001; /* Ensure it stays on top */
+  font-size: 16px;
+}
+
+.current-round-info span {
+  margin: 0 5px;
+}
+
+#currentRound, #trumpSuit, #roomCodeDisplay {
+  font-weight: bold;
+}
+
+#roomCodeDisplay {
+  color: #ffa500; /* Optional: Different color for the room code */
+}
+
+/* Stats Table */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.stats-table th, .stats-table td {
+  border: 1px solid #555;
+  padding: 5px;
+  text-align: center;
+}
+
+.stats-table th {
+  background-color: #e0aaff;
+  color: #1a1a1d;
+}
+
+.stats-table td {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Styles for the game results container */
+.game-results-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  z-index: 1000;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Keyframes for fadeIn animation */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translate(-50%, -60%); }
+  100% { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Pulsing effect for the winner message */
+.game-results-container h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+/* Keyframes for pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Adjustments for portrait mode */
+@media (orientation: portrait) {
+  body.game-started {
+    background: url('/images/KACHUFUL_PORTRAIT.jpg') no-repeat center center / cover;
+    background-size: cover; /* Make sure the image covers the screen */
+    background-position: center; /* Center the image */
+  }
+  .container {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: 50px; 
+  }
+
+  .input-group, .buttons {
+    display: block; /* Show in portrait mode if the game hasn't started */
+  }
+
+  #localPlayerCards {
+    top: 0; /* No vertical adjustment needed in portrait mode */
+  }
+
+  .current-round-info {
+    font-size: 14px;
+    top: calc(env(safe-area-inset-top) + 4px); /* Adjust for safe area */
+    right: calc(env(safe-area-inset-right) + 4px); /* Adjust for safe area */
+  }
+  .buttons {
+    flex-direction: column; /* Stack buttons on smaller screens */
+    gap: 10px; /* Smaller gap on mobile */
+  }
+  
+  .buttons button {
+    width: 100%; /* Full width buttons on smaller screens */
+  }
+}
+
+/* Adjustments for landscape mode */
+@media (orientation: landscape) {
+  body.game-started {
+    background: url('/images/KACHUFUL_LANDSCAPE.jpg') no-repeat center center / cover;
+    background-size: cover; /* Make sure the image covers the screen */
+    background-position: center; /* Center the image */
+  }
+  .container {
+    width: 100vw;
+    height: 100vh;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 50px;
+  }
+
+  .input-group, .buttons {
+    display: block;
+  }
+
+  /* Ensure the container is positioned at the bottom */
+  #localPlayerCardsContainer {
+    bottom: 0;
+  }
+
+  /* Ensure the cards are visible within the container */
+  #localPlayerCards {
+    top: 0;
+  }
+
+  .current-round-info {
+    font-size: 16px;
+    top: calc(env(safe-area-inset-top) + 10px); /* Adjust for safe area */
+    right: calc(env(safe-area-inset-right) + 10px); /* Adjust for safe area */
+  }
+}
+
+/* Add to Home Screen Prompt */
+.add-to-home-screen {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 10%); /* Adjust for safe area */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: #000;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 1000;
+  text-align: center;
+}
+
+.add-to-home-screen img {
+  height: 24px;
+  vertical-align: middle;
+}
