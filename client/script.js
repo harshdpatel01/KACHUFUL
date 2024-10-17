@@ -2,6 +2,7 @@
   const Game = {
     // Variables
     gameStarted: false,
+    isRestoringState: false,
     socket: null,
     localPlayerId: null,
     localPlayerName: null,
@@ -73,6 +74,11 @@
     setupEventListeners: function() {
       const self = this;
 
+      // Event listener to the room code input to automatically convert to uppercase
+      const roomCodeInput = document.getElementById('roomCode');
+      roomCodeInput.addEventListener('input', function(event) {
+          event.target.value = event.target.value.toUpperCase();
+      });
       // Button event listeners
       document.getElementById('createRoomButton').addEventListener('click', function() {
         self.createRoom();
@@ -359,11 +365,12 @@
         playerElement.classList.remove('disconnected');
         playerElement.classList.add('connected');
       }
+    
       if (data.isAllPlayersConnected) {
         this.socket.emit('resumeGame', { roomCode: this.roomCode });
         this.disableCardSelection();
       }
-    },
+    },    
 
     handleUpdateTotalScores: function(data) {
       const self = this;
@@ -397,7 +404,7 @@
 
     handlePlayerRejoined: function(data) {
       this.updateTurnDisplay(null, `${data.name} has rejoined the game.`);
-
+    
       if (this.localPlayerName === data.name) {
         if (this.currentGamePhase === 'bidding') {
           this.socket.emit('requestAvailableBids', { roomCode: this.roomCode });
@@ -405,29 +412,39 @@
           this.showCardThrowingUI();
         }
       }
-
+    
       if (data.isAllPlayersConnected) {
         this.socket.emit('resumeGame', { roomCode: this.roomCode });
         this.disableCardSelection();
       }
+    
+      // **Clear thrown cards without resetting startingSuit**
+      this.handleClearThrownCards(null, false); // Pass `false` to avoid resetting startingSuit
     },
+    
 
     handleGameState: function(data) {
+      this.isRestoringState = true;
       this.restoreGameState(data);
       this.updatePlayerStats();
-
+    
       if (data.localPlayerState.isCurrentTurn && this.currentGamePhase === 'bidding') {
         this.socket.emit('requestAvailableBids', { roomCode: data.roomCode });
       } else if (data.localPlayerState.isCurrentTurn && this.currentGamePhase === 'cardThrowing') {
         this.showCardThrowingUI();
       }
-
+    
+      // **Clear thrown cards without resetting startingSuit**
+      this.handleClearThrownCards(null, false); // Pass `false` to avoid resetting startingSuit
+    
       const self = this;
       data.tableState.thrownCards.forEach(function(cardData) {
         self.displayThrownCard(self.getPlayerName(cardData.playerId), cardData.card);
       });
+    
+      this.isRestoringState = false;
     },
-
+    
     handleResumeGame: function(data) {
       this.socket.emit('resumeGame', { roomCode: data.roomCode });
     },
@@ -507,30 +524,62 @@
     },
 
     handleBidPlaced: function(data) {
-      this.displayBid(data.player, data.bid);
+      // Update the bids table
+      const bidCell = document.getElementById(`bid-${data.player}`);
+      if (bidCell) {
+          bidCell.textContent = this.formatBid(data.bid);
+      }
+  
+      // Update the player data
       this.updatePlayerData(data.player, { bid: data.bid });
+  
+      // Update any other necessary game stats or UI elements
       this.updatePlayerStats();
+    },   
+
+    formatBid: function(bid) {
+      return (bid === null || bid === undefined) ? '?' : bid;
     },
 
-    handleClearThrownCards: function() {
+    handleClearThrownCards: function(delay = 2000, shouldResetStartingSuit = true) {
       const self = this;
-      // Optional: Adjust or remove the timeout as needed
-      setTimeout(function() {
-        // Clear the thrownCardsArea
+      if (delay !== null) {
+        setTimeout(function() {
+          // Clear the thrownCardsArea
+          const thrownCardsArea = document.getElementById('thrownCardsArea');
+          if (thrownCardsArea) {
+            thrownCardsArea.innerHTML = '';
+          }
+          
+          // Reset the startingSuit only if shouldResetStartingSuit is true
+          if (shouldResetStartingSuit) {
+            self.startingSuit = null;
+          }
+    
+          // Re-enable card selection if it's the player's turn and in card throwing phase
+          if (self.playerTurn === self.localPlayerId && self.currentGamePhase === 'cardThrowing') {
+            self.enableCardSelection(self.currentSelectableSuits);
+          }
+        }, delay);
+      } else {
+        // Immediate clearing without delay
         const thrownCardsArea = document.getElementById('thrownCardsArea');
         if (thrownCardsArea) {
           thrownCardsArea.innerHTML = '';
         }
-        // Reset the startingSuit for the next hand
-        self.startingSuit = null;
+        
+        // Reset the startingSuit only if shouldResetStartingSuit is true
+        if (shouldResetStartingSuit) {
+          self.startingSuit = null;
+        }
     
-        // Re-enable card selection if it's the player's turn
-        if (self.playerTurn === self.localPlayerId) {
+        // Re-enable card selection if it's the player's turn and in card throwing phase
+        if (self.playerTurn === self.localPlayerId && self.currentGamePhase === 'cardThrowing') {
           self.enableCardSelection(self.currentSelectableSuits);
         }
-      }, 2000); // Adjust the delay as needed
-    },    
-
+      }
+    },
+    
     handleCardThrown: function(data) {
       const playerName = data.player;
       const card = data.card;
@@ -898,25 +947,73 @@
     showBiddingModal: function(availableBids) {
       const self = this;
       const modalBidButtons = document.getElementById('modalBidButtons');
+      const biddingTableHeader = document.getElementById('biddingTableHeader');
+      const biddingTableBody = document.getElementById('biddingTableBody');
+      
+      // Clear existing buttons and table contents
       modalBidButtons.innerHTML = '';
-
-      availableBids.forEach(function(bid) {
-        const bidButton = document.createElement('button');
-        bidButton.textContent = bid;
-        bidButton.className = 'modalBidButton';
-        bidButton.onclick = function() { self.placeBid(bid); };
-        modalBidButtons.appendChild(bidButton);
+      biddingTableHeader.innerHTML = '';
+      biddingTableBody.innerHTML = '';
+  
+      // Dynamically create table headers with player names
+      this.players.forEach(function(player) {
+          const th = document.createElement('th');
+          th.textContent = player.name + (player.id === self.localPlayerId ? '' : '');
+          biddingTableHeader.appendChild(th);
       });
-
+  
+      // Create a row for bid values
+      this.players.forEach(function(player) {
+          const td = document.createElement('td');
+          td.id = `bid-${player.id}`; // Assign an ID for easy updates
+          td.textContent = self.formatBid(player.bid);
+          biddingTableBody.appendChild(td);
+      });
+  
+      // Define the range of possible bids (e.g., 0 to maxRounds or another logic)
+      const maxBid = this.currentRound; // Adjust as per game rules
+      const bidRange = [];
+      for (let i = 0; i <= maxBid; i++) {
+          bidRange.push(i);
+      }
+  
+      // Render bid buttons based on availableBids
+      bidRange.forEach(function(bid) {
+          const bidButton = document.createElement('button');
+          bidButton.textContent = bid;
+          bidButton.className = 'modalBidButton';
+          bidButton.disabled = !availableBids.includes(bid); // Disable if bid not available
+  
+          if (!availableBids.includes(bid)) {
+              bidButton.classList.add('disabled'); // Add disabled class for styling
+          }
+  
+          bidButton.onclick = function() { self.placeBid(bid); };
+          modalBidButtons.appendChild(bidButton);
+      });
+  
+      // Show the bidding modal
       const biddingModal = document.getElementById('biddingModal');
       biddingModal.style.display = 'flex';
       this.centerModal(biddingModal);
-    },
+    },  
 
     placeBid: function(bid) {
       if (this.localPlayerId === this.playerTurn) {
-        this.socket.emit('placeBid', { roomCode: this.roomCode, bid });
-        this.closeModal();
+          this.socket.emit('placeBid', { roomCode: this.roomCode, bid });
+          this.closeModal();
+
+          // update the bids table immediately for optimistic UI is desired
+          const bidCell = document.getElementById(`bid-${this.localPlayerId}`);
+          if (bidCell) {
+              bidCell.textContent = this.formatBid(bid);
+          }
+
+          // Update player data
+          this.updatePlayerData(this.localPlayerId, { bid });
+
+          // Update player stats
+          this.updatePlayerStats();
       }
     },
 
@@ -1002,6 +1099,15 @@
     },
 
     displayThrownCard: function(playerName, card) {
+      // Generate a unique identifier for the card
+      const cardId = `thrown-${playerName}-${card.suit}-${card.rank}`;
+    
+      // Check if the card already exists
+      if (document.getElementById(cardId)) {
+        // Card already exists, do not add again
+        return;
+      }
+    
       // Find the player object based on the player's name
       const player = this.players.find(p => p.name === playerName);
       if (!player) {
@@ -1029,6 +1135,38 @@
       const thrownAreaCenterX = thrownCardsAreaRect.left + thrownCardsAreaRect.width / 2;
       const thrownAreaCenterY = thrownCardsAreaRect.top + thrownCardsAreaRect.height / 2;
     
+      if (this.isRestoringState) {
+        // During restoration, render the card directly without animation
+        const newCardContainer = document.createElement('div');
+        newCardContainer.className = 'thrown-card-container';
+        newCardContainer.id = cardId; // Assign the unique ID
+        newCardContainer.dataset.playerName = playerName;
+        newCardContainer.dataset.cardSuit = card.suit;
+        newCardContainer.dataset.cardRank = card.rank;
+    
+        // Append the card image to the new container
+        const newCardImage = document.createElement('img');
+        newCardImage.src = `cards/${card.suit.toLowerCase().charAt(0)}${this.mapRankToFileNumber(card.rank)}.png`;
+        newCardImage.alt = `${card.rank} of ${card.suit}`;
+        newCardImage.className = 'thrown-card-image';
+    
+        const watermark = document.createElement('div');
+        watermark.className = 'card-watermark';
+        watermark.textContent = playerName;
+    
+        newCardContainer.appendChild(newCardImage);
+        newCardContainer.appendChild(watermark);
+    
+        // Append the new card container to the thrownCardsArea
+        thrownCardsArea.appendChild(newCardContainer);
+    
+        // Reposition all cards to ensure they are centered
+        this.repositionThrownCards();
+    
+        return;
+      }
+    
+      // Continue with existing animation logic for normal card throws
       // Create the card element
       const cardImage = document.createElement('img');
       const cardFileNumber = this.mapRankToFileNumber(card.rank);
@@ -1040,6 +1178,7 @@
       // Create a container for the card
       const cardContainer = document.createElement('div');
       cardContainer.className = 'thrown-card-container thrown-card-spinning';
+      cardContainer.id = cardId; // Assign the unique ID
       cardContainer.style.position = 'absolute';
       cardContainer.style.left = playerCenterX + 'px';
       cardContainer.style.top = playerCenterY + 'px';
@@ -1073,6 +1212,7 @@
         newCardContainer.dataset.playerName = playerName;
         newCardContainer.dataset.cardSuit = card.suit;
         newCardContainer.dataset.cardRank = card.rank;
+        newCardContainer.id = cardId; // Assign the unique ID
     
         // Append the card image to the new container
         const newCardImage = document.createElement('img');
@@ -1093,7 +1233,7 @@
         // Reposition all cards to ensure they are centered
         this.repositionThrownCards();
       }.bind(this), 1000); // Duration matches the CSS transition
-    },   
+    },    
     
     repositionThrownCards: function() {
       const thrownCardsArea = document.getElementById('thrownCardsArea');
@@ -1194,7 +1334,7 @@
       this.players = updatedPlayers;
       const playerListElement = document.getElementById('playerList');
       playerListElement.innerHTML = this.players.map(player =>
-        `<li>${player.name}${player.id === this.localPlayerId ? ' (You)' : ''}${player.isAdmin ? ' (Admin)' : ''}</li>`
+        `<li>${player.name}${player.id === this.localPlayerId ? ' (ME)' : ''}${player.isAdmin ? ' (Admin)' : ''}</li>`
       ).join('');
       this.updatePlayerPositions();
     },
@@ -1405,7 +1545,7 @@
 
         const playerStats = document.createElement('div');
         playerStats.classList.add('playerStats');
-        playerStats.textContent = `${player.handsWon || 0} / ${player.bid !== undefined ? player.bid : '?'}`;
+        playerStats.textContent = `${player.handsWon || 0} /  ${self.formatBid(player.bid)}`;
         playerElement.appendChild(playerStats);
 
         const position = seatPositions[index];
@@ -1446,11 +1586,11 @@
 
           const playerStats = playerElement.querySelector('.playerStats');
           if (playerStats) {
-            playerStats.textContent = `${player.handsWon !== undefined ? player.handsWon : 0} / ${player.bid !== undefined ? player.bid : '?'}`;
+            playerStats.textContent = `${player.handsWon !== undefined ? player.handsWon : 0} /  ${self.formatBid(player.bid)}`;
           } else {
             const newPlayerStats = document.createElement('div');
             newPlayerStats.classList.add('playerStats');
-            newPlayerStats.textContent = `${player.handsWon !== undefined ? player.handsWon : 0} / ${player.bid !== undefined ? player.bid : '?'}`;
+            newPlayerStats.textContent = `${player.handsWon !== undefined ? player.handsWon : 0} /  ${self.formatBid(player.bid)}`;
             playerElement.appendChild(newPlayerStats);
           }
         }
@@ -1598,6 +1738,38 @@
         player.isConnected = data.tableState.players.find(p => p.id === player.id)?.isConnected || false;
       });
 
+      // Restore currentSelectableSuits
+      this.currentSelectableSuits = data.tableState.currentSelectableSuits || [];
+
+      // Update the bidding table within the bidding modal if it's active
+      if (this.currentGamePhase === 'bidding') {
+        const biddingTableHeader = document.getElementById('biddingTableHeader');
+        const biddingTableBody = document.getElementById('biddingTableBody');
+
+        if (biddingTableHeader && biddingTableBody) {
+            biddingTableHeader.innerHTML = ''; // Clear existing headers
+            biddingTableBody.innerHTML = '';   // Clear existing bid values
+
+            // Populate table headers with player names
+            this.players.forEach(player => {
+                const th = document.createElement('th');
+                th.textContent = player.name + (player.id === this.localPlayerId ? ' (You)' : '');
+                biddingTableHeader.appendChild(th);
+            });
+
+            // Populate bid values
+            this.players.forEach(player => {
+                const td = document.createElement('td');
+                td.id = `bid-${player.id}`;
+                td.textContent = this.formatBid(player.bid);
+                biddingTableBody.appendChild(td);
+            });
+        }
+
+        // Re-render bid buttons with updated available bids
+        this.socket.emit('requestAvailableBids', { roomCode: this.roomCode });
+      }
+
       this.updateRoundInfo();
       this.updatePlayerList(this.players);
       this.updatePlayerPositions();
@@ -1607,14 +1779,14 @@
 
       this.disableCardSelection();
 
-      if (this.localPlayerId === this.playerTurn && this.currentGamePhase === 'bidding') {
-        this.socket.emit('requestAvailableBids', { roomCode: this.roomCode });
-      }
-
-      if (this.localPlayerId === this.playerTurn && this.currentGamePhase === 'cardThrowing') {
-        this.showCardThrowingUI();
-      } else {
-        this.disableCardSelection();
+      // Handle card selection based on the current game phase and player's turn
+      if (this.localPlayerId === this.playerTurn) {
+        if (this.currentGamePhase === 'bidding') {
+          this.socket.emit('requestAvailableBids', { roomCode: this.roomCode });
+        } else if (this.currentGamePhase === 'cardThrowing') {
+          console.log(`[DEBUG] Enabling card selection with suits: ${this.currentSelectableSuits}`);
+          this.enableCardSelection(this.currentSelectableSuits);
+        }
       }
     },
 

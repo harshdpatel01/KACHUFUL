@@ -407,8 +407,23 @@ app.get('/', (req, res) => {
   * Generates a unique room code.
   * @returns {string} Room code
   */
- function generateRoomCode() {
-   return Math.random().toString(36).substring(2, 6).toUpperCase();
+ function generateRoomCode(length = 4, maxAttempts = 1000) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let roomCode;
+  let attempts = 0;
+
+  do {
+      roomCode = '';
+      for (let i = 0; i < length; i++) {
+          roomCode += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      attempts++;
+      if (attempts > maxAttempts) {
+          throw new Error('Unable to generate a unique room code. Please try again.');
+      }
+  } while (rooms.hasOwnProperty(roomCode));
+
+  return roomCode;
  }
  
  /**
@@ -944,14 +959,14 @@ app.get('/', (req, res) => {
        room.roundStats[player.id] = {
          playerName: player.name,
          handsWon: 0,
-         bid: 0,
+         bid: null,
          score: 0,
          totalScore: player.totalScore || 0
        };
      } else {
        // Reset handsWon and bid for the new round but keep the totalScore
        room.roundStats[player.id].handsWon = 0;
-       room.roundStats[player.id].bid = 0;
+       room.roundStats[player.id].bid = null;
        room.roundStats[player.id].score = 0;
        room.roundStats[player.id].totalScore = player.totalScore || room.roundStats[player.id].totalScore;
      }

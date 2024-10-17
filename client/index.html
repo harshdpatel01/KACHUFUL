@@ -21,7 +21,7 @@
         <div class="form-row">
             <div id="nameBox" class="input-group">
                 <label for="name">Name:</label>
-                <input type="text" id="name" />
+                <input type="text" id="name" maxlength="9" title="Maximum 9 characters allowed" />
             </div>
             <div class="button-group">
                 <button id="createRoomButton">Create Room</button>
@@ -32,7 +32,7 @@
         <div class="form-row">
             <div class="input-group">
                 <label for="roomCode" id="roomCodeLabel">Room Code:</label>
-                <input type="text" id="roomCode" />
+                <input type="text" id="roomCode" maxlength="4" pattern="[A-Z]*" title="Room code should only contain uppercase letters" />
             </div>
             <div class="button-group">
                 <button id="joinRoomButton">Join Room</button>
@@ -56,6 +56,24 @@
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <h2>How many hands do you expect this round?</h2>
+                
+                <!-- Bidding Table -->
+                <div id="biddingTableContainer" style="margin-bottom: 20px;">
+                    <table id="biddingTable" class="stats-table">
+                        <thead>
+                            <tr id="biddingTableHeader">
+                                <!-- Player names will be dynamically added here as <th> elements -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="biddingTableBody">
+                                <!-- Bid values will be dynamically added here as <td> elements -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Bid Buttons -->
                 <div id="modalBidButtons"></div>
             </div>
         </div>

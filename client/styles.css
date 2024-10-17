@@ -210,6 +210,7 @@ body.game-started {
   color: #fff;
   overflow-y: auto; /* Enable vertical scrolling */
   max-height: 80vh; /* Limit height to 80% of viewport */
+  margin-top: -80px;
 }
 
 .modalBidButton {
@@ -225,6 +226,53 @@ body.game-started {
 
 .modalBidButton:hover {
   background-color: #c77dff;
+}
+
+/* Disabled Bid Buttons */
+.modalBidButton.disabled,
+.modalBidButton:disabled {
+    background-color: #777; /* Gray background */
+    color: #ccc;            /* Gray text */
+    cursor: not-allowed;    /* Change cursor to not-allowed */
+    pointer-events: none;   /* Prevent any mouse events */
+}
+
+.modalBidButton.disabled:hover,
+.modalBidButton:disabled:hover {
+    background-color: #777; /* Maintain gray background on hover */
+}
+
+/* Bidding Table within Modal */
+#biddingModal #biddingTableContainer {
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
+#biddingModal #biddingTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#biddingModal #biddingTable th,
+#biddingModal #biddingTable td {
+  border: 1px solid #555;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+#biddingModal #biddingTable th {
+  background-color: #e0aaff;
+  color: #1a1a1d;
+}
+
+#biddingModal #biddingTable td {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Ensure the bidding table occupies the full width */
+#biddingTableContainer {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .close {
@@ -406,6 +454,7 @@ body.game-started {
   overflow: hidden;
   z-index: 10;
   padding-bottom: env(safe-area-inset-bottom);
+  z-index: 2000;
 }
 
 #localPlayerCards {
@@ -460,7 +509,7 @@ body.game-started {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70%;
+  width: 100%;
   height: 140px; /* Adjust height as needed */
   flex-direction: row;
   z-index: 3;
@@ -502,21 +551,25 @@ body.game-started {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add shadow for better contrast */
 }
 
-/* Spinning animation for the thrown card */
-@keyframes spinAndMove {
+/* Updated Pop and Slide Animation */
+@keyframes popAndSlide {
   0% {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -60%) scale(0.5); /* Start slightly above */
     opacity: 0;
   }
+  50% {
+    transform: translate(-50%, -55%) scale(1.1); /* Pop slightly */
+    opacity: 0.8;
+  }
   100% {
+    transform: translate(-50%, -50%) scale(1); /* Final position */
     opacity: 1;
-    transform: translate(-50%, -50%) rotate(360deg) scale(1); /* One full spin and reach the final position */
   }
 }
 
-/* Apply the animation when the card is thrown */
+/* Apply the updated animation when the card is thrown */
 .thrown-card-spinning {
-  animation: spinAndMove 1.5s ease-in-out forwards; /* Slower animation and only one spin */
+  animation: popAndSlide 1.0s ease-out forwards; /* Slower animation with pop and slide */
 }
 
 /* Turn display */
@@ -672,6 +725,12 @@ body.game-started {
   
   .buttons button {
     width: 100%; /* Full width buttons on smaller screens */
+  }
+
+  #biddingModal #biddingTable th,
+    #biddingModal #biddingTable td {
+        padding: 6px 8px;
+        font-size: 14px;
   }
 }
 
