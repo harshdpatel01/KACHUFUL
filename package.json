@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Kachuful Game",
   "main": "server/server.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server/server.js"
@@ -12,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
     "nodemon": "^3.1.7",

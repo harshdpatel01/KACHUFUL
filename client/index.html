@@ -60,15 +60,17 @@
                 <!-- Bidding Table -->
                 <div id="biddingTableContainer" style="margin-bottom: 20px;">
                     <table id="biddingTable" class="stats-table">
+                        <!-- Define column widths dynamically -->
+                        <colgroup id="biddingTableColGroup">
+                            <!-- <col> elements will be dynamically added here based on player count -->
+                        </colgroup>
                         <thead>
                             <tr id="biddingTableHeader">
-                                <!-- Player names will be dynamically added here as <th> elements -->
+                                <!-- Player names and scores will be dynamically added here as <th> elements -->
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr id="biddingTableBody">
-                                <!-- Bid values will be dynamically added here as <td> elements -->
-                            </tr>
+                        <tbody id="biddingTableBody">
+                            <!-- Bids row will be dynamically added here as a single <tr> element -->
                         </tbody>
                     </table>
                 </div>
@@ -142,5 +144,10 @@
     <script src="script.js"></script>
     <!-- Include canvas-confetti library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1/dist/confetti.browser.min.js"></script>
+
+    <!-- Footer -->
+    <footer style="text-align: center; margin-top: 20px;">
+        <p>&copy; 2024 Kachuful.com | All rights reserved.</p>
+    </footer>
 </body>
 </html>

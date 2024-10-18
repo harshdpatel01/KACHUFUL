@@ -28,7 +28,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
+  /*background-color: rgba(0, 0, 0, 0.5);  Black overlay with 50% opacity */
   z-index: 1; /* Place the overlay below the game elements */
   pointer-events: none; /* Allow interactions with elements beneath the overlay */
 }
@@ -63,7 +63,6 @@ body.game-started {
 
 /* Adjust the form itself */
 .input-group {
-  margin: 15px 0;
   width: auto; /* Adjusted to allow flexbox to manage width */
   position: relative;
 }
@@ -81,7 +80,6 @@ body.game-started {
   border: none;
   border-radius: 6px;
   width: 100%;
-  margin-top: 5px;
   background-color: rgba(255, 255, 255, 0.1);
   color: #e0aaff;
   box-shadow: 0 4px 10px rgba(224, 170, 255, 0.3);
@@ -101,7 +99,6 @@ body.game-started {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 15px 0;
 }
 
 /* Ensure the input-group takes up available space */
@@ -203,7 +200,7 @@ body.game-started {
   border: 1px solid #e0aaff;
   border-radius: 15px;
   width: 90%;
-  max-width: 400px;
+  max-width: 600px; /* Increased max-width for larger tables */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
   text-align: center;
   padding: 20px;
@@ -250,29 +247,36 @@ body.game-started {
 #biddingModal #biddingTable {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Fixed table layout for consistent column widths */
 }
 
-#biddingModal #biddingTable th,
-#biddingModal #biddingTable td {
-  border: 1px solid #555;
-  padding: 8px 12px;
-  text-align: center;
+/* Header Container for Player Name and Score */
+#biddingModal #biddingTable th .header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#biddingModal #biddingTable th {
-  background-color: #e0aaff;
-  color: #1a1a1d;
+#biddingModal #biddingTable th .player-name {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
-#biddingModal #biddingTable td {
+#biddingModal #biddingTable th .player-score {
+  font-size: 14px;
+  color: #a200ff;
+}
+
+/* Highlighting the Local Player's Header Cell */
+#biddingModal #biddingTable th.local-player-header {
+  background-color: #ff9800; /* Orange background */
+  color: #fff; /* White text for readability */
+}
+
+/* Bids Row Styling */
+#biddingModal #biddingTable tr:first-child td {
   background-color: #333;
   color: #fff;
-}
-
-/* Ensure the bidding table occupies the full width */
-#biddingTableContainer {
-  width: 100%;
-  overflow-x: auto;
 }
 
 .close {
@@ -702,7 +706,7 @@ body.game-started {
     padding-right: env(safe-area-inset-right);
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    padding-bottom: 50px; 
+    padding-bottom: 130px; 
   }
 
   .input-group, .buttons {
@@ -746,7 +750,7 @@ body.game-started {
     height: 100vh;
     justify-content: flex-end;
     align-items: center;
-    padding-bottom: 50px;
+    padding-bottom: 30px;
   }
 
   .input-group, .buttons {
@@ -765,8 +769,9 @@ body.game-started {
 
   .current-round-info {
     font-size: 16px;
-    top: calc(env(safe-area-inset-top) + 10px); /* Adjust for safe area */
-    right: calc(env(safe-area-inset-right) + 10px); /* Adjust for safe area */
+    top: calc(env(safe-area-inset-top) + 5px); /* Adjust for safe area */
+    right: calc(env(safe-area-inset-right) + 120px); /* Adjust for safe area */
+    
   }
 }
 
@@ -789,4 +794,14 @@ body.game-started {
 .add-to-home-screen img {
   height: 24px;
   vertical-align: middle;
+}
+
+footer {
+  font-size: 0.9em;
+  color: rgba(187, 185, 185, 0.5);
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin-bottom: -10px;
 }

@@ -1,18 +1,20 @@
+import 'dotenv/config'; // This replaces require('dotenv').config()
+
 // Required Modules
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const crypto = require('crypto');
-const session = require('express-session');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { createHash } from 'crypto';
+import session from 'express-session';
 
 // Server Setup
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const server = createServer(app);
+const io = new Server(server); // Correct initialization of Socket.IO
 
 // Session Middleware
 const sessionMiddleware = session({
-  secret: 'your-secret-key',  // Change this to a strong secret
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true
 });
@@ -43,7 +45,7 @@ app.use(express.static('client'));
 
 // Serve Main Page
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(new URL('index.html', import.meta.url).pathname);
 });
 
  // Global Variables and Constants
@@ -432,7 +434,7 @@ app.get('/', (req, res) => {
   * @returns {string} Player ID
   */
  function generatePlayerId(name) {
-   const hash = crypto.createHash('sha256');
+   const hash = createHash('sha256');
    hash.update(name);
    return hash.digest('hex').substring(0, 16); // Shortened hash for player ID
  }

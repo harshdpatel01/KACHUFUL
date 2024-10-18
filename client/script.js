@@ -949,35 +949,70 @@
       const modalBidButtons = document.getElementById('modalBidButtons');
       const biddingTableHeader = document.getElementById('biddingTableHeader');
       const biddingTableBody = document.getElementById('biddingTableBody');
+      const biddingTableColGroup = document.getElementById('biddingTableColGroup'); // Reference to <colgroup>
       
-      // Clear existing buttons and table contents
+      // **Clear existing buttons and table contents**
       modalBidButtons.innerHTML = '';
       biddingTableHeader.innerHTML = '';
       biddingTableBody.innerHTML = '';
+      biddingTableColGroup.innerHTML = ''; // Clear existing <col> elements
   
-      // Dynamically create table headers with player names
+      // **1. Create Column Definitions for Consistent Widths**
+      const columnWidthPercentage = `${100 / this.players.length}%`;
+      this.players.forEach(function(player) {
+          const col = document.createElement('col');
+          col.style.width = columnWidthPercentage;
+          biddingTableColGroup.appendChild(col);
+      });
+  
+      // **2. Create Header Row with Player Names and Total Scores**
       this.players.forEach(function(player) {
           const th = document.createElement('th');
-          th.textContent = player.name + (player.id === self.localPlayerId ? '' : '');
+  
+          // Create a container for the player's name and score
+          const headerContainer = document.createElement('div');
+          headerContainer.classList.add('header-container');
+  
+          // Player's name
+          const playerName = document.createElement('div');
+          playerName.classList.add('player-name');
+          playerName.textContent = player.name + (player.id === self.localPlayerId ? ' (You)' : '');
+          headerContainer.appendChild(playerName);
+  
+          // Player's total score
+          const playerScore = document.createElement('div');
+          playerScore.classList.add('player-score');
+          playerScore.textContent = `Score: ${player.totalScore !== undefined ? player.totalScore : '0'}`;
+          headerContainer.appendChild(playerScore);
+  
+          th.appendChild(headerContainer);
+  
+          // **Highlight the Local Player's Header Cell**
+          if (player.id === self.localPlayerId) {
+              th.classList.add('local-player-header');
+          }
+  
           biddingTableHeader.appendChild(th);
       });
   
-      // Create a row for bid values
-      this.players.forEach(function(player) {
+      // **3. Create Data Row for Bids**
+      const bidRow = document.createElement('tr');
+      self.players.forEach(function(player) {
           const td = document.createElement('td');
           td.id = `bid-${player.id}`; // Assign an ID for easy updates
           td.textContent = self.formatBid(player.bid);
-          biddingTableBody.appendChild(td);
+          bidRow.appendChild(td);
       });
+      biddingTableBody.appendChild(bidRow);
   
-      // Define the range of possible bids (e.g., 0 to maxRounds or another logic)
+      // **4. Define the Range of Possible Bids**
       const maxBid = this.currentRound; // Adjust as per game rules
       const bidRange = [];
       for (let i = 0; i <= maxBid; i++) {
           bidRange.push(i);
       }
   
-      // Render bid buttons based on availableBids
+      // **5. Render Bid Buttons Based on AvailableBids**
       bidRange.forEach(function(bid) {
           const bidButton = document.createElement('button');
           bidButton.textContent = bid;
@@ -992,12 +1027,12 @@
           modalBidButtons.appendChild(bidButton);
       });
   
-      // Show the bidding modal
+      // **6. Show the Bidding Modal**
       const biddingModal = document.getElementById('biddingModal');
       biddingModal.style.display = 'flex';
       this.centerModal(biddingModal);
-    },  
-
+    },
+  
     placeBid: function(bid) {
       if (this.localPlayerId === this.playerTurn) {
           this.socket.emit('placeBid', { roomCode: this.roomCode, bid });
@@ -1461,54 +1496,54 @@
 
       const positions = {
         2: [
-          { xPortrait: '15%', yPortrait: '73%', xLandscape: '7%', yLandscape: '84%' },
-          { xPortrait: '85%', yPortrait: '20%', xLandscape: '93%', yLandscape: '20%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },   // Player 1
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' }, // Player 2
         ],
         3: [
-          { xPortrait: '15%', yPortrait: '73%', xLandscape: '7%', yLandscape: '84%' },
-          { xPortrait: '15%', yPortrait: '15%', xLandscape: '7%', yLandscape: '20%' },
-          { xPortrait: '85%', yPortrait: '15%', xLandscape: '93%', yLandscape: '20%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },   // Player 1
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' },  // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' }, // Player 3
         ],
         4: [
-          { xPortrait: '15%', yPortrait: '73%', xLandscape: '7%', yLandscape: '84%' },
-          { xPortrait: '15%', yPortrait: '15%', xLandscape: '7%', yLandscape: '20%' },
-          { xPortrait: '85%', yPortrait: '15%', xLandscape: '93%', yLandscape: '20%' },
-          { xPortrait: '85%', yPortrait: '73%', xLandscape: '93%', yLandscape: '85%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },   // Player 1
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' },  // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' }, // Player 3
+          { xPortrait: '87%', yPortrait: '80%', xLandscape: '94%', yLandscape: '88%' }, // Player 4
         ],
         5: [
-          { xPortrait: '15%', yPortrait: '73%', xLandscape: '7%', yLandscape: '84%' },
-          { xPortrait: '15%', yPortrait: '70%', xLandscape: '35%', yLandscape: '15%' },
-          { xPortrait: '15%', yPortrait: '30%', xLandscape: '70%', yLandscape: '15%' },
-          { xPortrait: '85%', yPortrait: '30%', xLandscape: '70%', yLandscape: '85%' },
-          { xPortrait: '85%', yPortrait: '70%', xLandscape: '35%', yLandscape: '85%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },    // Player 1
+          { xPortrait: '50%', yPortrait: '10%', xLandscape: '50%', yLandscape: '2%' },   // Player 5 (Top Center)
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' }, // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' },  // Player 3
+          { xPortrait: '87%', yPortrait: '80%', xLandscape: '94%', yLandscape: '88%' },  // Player 4
         ],
         6: [
-          { xPortrait: '15%', yPortrait: '73%', xLandscape: '7%', yLandscape: '82%' },
-          { xPortrait: '20%', yPortrait: '70%', xLandscape: '25%', yLandscape: '20%' },
-          { xPortrait: '20%', yPortrait: '30%', xLandscape: '75%', yLandscape: '20%' },
-          { xPortrait: '50%', yPortrait: '15%', xLandscape: '85%', yLandscape: '50%' },
-          { xPortrait: '80%', yPortrait: '30%', xLandscape: '75%', yLandscape: '80%' },
-          { xPortrait: '80%', yPortrait: '70%', xLandscape: '25%', yLandscape: '80%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },     // Player 1
+          { xPortrait: '50%', yPortrait: '10%', xLandscape: '50%', yLandscape: '2%' },    // Player 5 (Top Center)
+          { xPortrait: '87%', yPortrait: '10%', xLandscape: '94%', yLandscape: '2%' },    // Player 6 (Top Right)
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' },    // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' },   // Player 3
+          { xPortrait: '87%', yPortrait: '80%', xLandscape: '94%', yLandscape: '88%' },   // Player 4
         ],
         7: [
-          { xPortrait: '13%', yPortrait: '73%', xLandscape: '7%', yLandscape: '82%' },
-          { xPortrait: '25%', yPortrait: '80%', xLandscape: '25%', yLandscape: '25%' },
-          { xPortrait: '15%', yPortrait: '60%', xLandscape: '50%', yLandscape: '15%' },
-          { xPortrait: '15%', yPortrait: '30%', xLandscape: '75%', yLandscape: '25%' },
-          { xPortrait: '50%', yPortrait: '15%', xLandscape: '85%', yLandscape: '50%' },
-          { xPortrait: '85%', yPortrait: '30%', xLandscape: '75%', yLandscape: '75%' },
-          { xPortrait: '85%', yPortrait: '60%', xLandscape: '50%', yLandscape: '85%' },
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },     // Player 1
+          { xPortrait: '50%', yPortrait: '10%', xLandscape: '50%', yLandscape: '2%' },    // Player 5 (Top Center)
+          { xPortrait: '87%', yPortrait: '10%', xLandscape: '94%', yLandscape: '2%' },    // Player 6 (Top Right)
+          { xPortrait: '95%', yPortrait: '50%', xLandscape: '100%', yLandscape: '50%' },  // Player 7 (Middle Right)
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' },    // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' },   // Player 3
+          { xPortrait: '87%', yPortrait: '80%', xLandscape: '94%', yLandscape: '88%' },   // Player 4
         ],
         8: [
-          { xPortrait: '13%', yPortrait: '73%', xLandscape: '7%', yLandscape: '82%' },
-          { xPortrait: '25%', yPortrait: '80%', xLandscape: '25%', yLandscape: '25%' },
-          { xPortrait: '15%', yPortrait: '60%', xLandscape: '50%', yLandscape: '15%' },
-          { xPortrait: '15%', yPortrait: '40%', xLandscape: '75%', yLandscape: '25%' },
-          { xPortrait: '50%', yPortrait: '15%', xLandscape: '85%', yLandscape: '50%' },
-          { xPortrait: '85%', yPortrait: '40%', xLandscape: '75%', yLandscape: '75%' },
-          { xPortrait: '85%', yPortrait: '60%', xLandscape: '50%', yLandscape: '85%' },
-          { xPortrait: '75%', yPortrait: '80%', xLandscape: '25%', yLandscape: '75%' },
-        ],
+          { xPortrait: '13%', yPortrait: '80%', xLandscape: '6%', yLandscape: '88%' },      // Player 1
+          { xPortrait: '50%', yPortrait: '10%', xLandscape: '50%', yLandscape: '2%' },     // Player 5 (Top Center)
+          { xPortrait: '87%', yPortrait: '10%', xLandscape: '94%', yLandscape: '2%' },     // Player 6 (Top Right)
+          { xPortrait: '95%', yPortrait: '50%', xLandscape: '100%', yLandscape: '50%' },   // Player 7 (Middle Right)
+          { xPortrait: '50%', yPortrait: '90%', xLandscape: '50%', yLandscape: '98%' },    // Player 8 (Bottom Center)
+          { xPortrait: '13%', yPortrait: '35%', xLandscape: '6%', yLandscape: '15%' },     // Player 2
+          { xPortrait: '87%', yPortrait: '35%', xLandscape: '94%', yLandscape: '15%' },    // Player 3
+          { xPortrait: '87%', yPortrait: '80%', xLandscape: '94%', yLandscape: '88%' },    // Player 4
+        ],      
       };
 
       const seatPositions = positions[playerCount];
